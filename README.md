@@ -15,7 +15,7 @@ The agent submits the receipts. The verifier checks the saved grades and exact q
 
 Agent agreement is `100 × (1 − mean absolute error / 3)`, with each criterion compared to all five teachers. The report also shows pairwise teacher agreement on those criteria. Criterion and total failures are reported separately from the agreement score.
 
-## Tasks
+### Tasks
 
 | Task | Purpose | Example request |
 | --- | --- | --- |
