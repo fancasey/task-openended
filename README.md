@@ -1,8 +1,6 @@
 # Open-Ended Rubric Grading
 
-Ask NanoAgent to grade one student from S1 through S5. For example, “Grade S2” grades all 12 responses, and “Grade S2 on NQ003 and NQ004” grades two. The `list-grading-data` task lists the available IDs and prompts.
-
-The structured `grade-student` input is `{"student_id":"S2","question_ids":[]}`. An empty question list selects all questions. Use distinct IDs from `NQ001` through `NQ012` to select specific questions.
+Grade open-ended student responses with a rubric and compare the results with teacher scores.
 
 ## Tools
 
@@ -16,6 +14,15 @@ The structured `grade-student` input is `{"student_id":"S2","question_ids":[]}`.
 The agent submits the receipts. The verifier checks the saved grades and exact question coverage before scoring. The result shows each response total out of 20. A criterion passes when its score is within one point of any of the five teachers. A total passes when it falls within the range of the five individual teachers’ totals. The distribution warning compares how often the agent and teachers used each score on the same student’s selected responses.
 
 Agent agreement is `100 × (1 − mean absolute error / 3)`, with each criterion compared to all five teachers. The report also shows pairwise teacher agreement on those criteria. Criterion and total failures are reported separately from the agreement score.
+
+## Tasks
+
+| Task | Purpose | Example request |
+| --- | --- | --- |
+| `list-grading-data` | Lists the available student IDs and question prompts. | “List the students and questions.” |
+| `grade-student` | Grades all or selected responses for one student from S1 through S5. | “Grade S2” or “Grade S2 on NQ003 and NQ004.” |
+
+The structured `grade-student` input is `{"student_id":"S2","question_ids":[]}`. An empty question list selects all questions. Use distinct IDs from `NQ001` through `NQ012` to select specific questions.
 
 ## Layout
 
