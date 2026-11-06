@@ -5,15 +5,9 @@ function gradingReport({ details } = {}) {
   return h(
     "div",
     { class: "grading-report" },
-    h("p", {}, h("strong", { text: `${details.student_id} · Agent agreement ${details.agreement_score}/100` })),
-    h("p", { text: `Teacher agreement ${details.teacher_agreement_score}/100 · Average difference ${details.mean_absolute_error} rubric points` }),
+    h("p", {}, h("strong", { text: `${details.student_id} · Agreement with teachers ${details.agreement_score}/100` })),
+    h("p", { text: `Teacher-to-teacher agreement ${details.teacher_agreement_score}/100 · Average difference ${details.mean_absolute_error} rubric points` }),
     h("p", { text: `${details.criterion_failures} criterion checks failed · ${details.total_failures} total checks failed` }),
-    disclosure(
-      { summary: details.distribution_warning ? "Score distribution warning" : "Score distribution", open: details.distribution_warning },
-      h("ul", {}, details.distribution.map((row) =>
-        h("li", { text: `Score ${row.rubric_score} · Agent ${row.agent_count} · Teacher range ${row.teacher_min}–${row.teacher_max}` }),
-      )),
-    ),
     ...details.responses.map((response) =>
       disclosure(
         { summary: `${response.question_id} · ${response.total}/20`, open: !response.within_teacher_total_range },

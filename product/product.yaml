@@ -4,7 +4,7 @@ summary: "Select a student and optionally choose questions. The agent grades eac
 highlights:
   - "Question-specific rubrics with four levels for each criterion"
   - "Teacher-agreement score out of 100 with a teacher-to-teacher baseline"
-  - "Separate criterion, total and score distribution checks"
+  - "Separate checks against teacher criterion scores and response totals"
 steps:
   - "Ask to grade a student from S1 through S5, optionally on specific questions"
   - "Review criterion scores, justifications, and response totals"

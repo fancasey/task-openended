@@ -67,11 +67,11 @@ def test_full_student_coverage_across_two_batches(tmp_path):
     assert "missing grades" in submit(selection, ids[:1], reference, tmp_path)["message"]
     verdict = submit(selection, ids[::-1], reference, tmp_path)
     assert len(verdict["details"]["responses"]) == 12
-    assert sum(row["agent_count"] for row in verdict["details"]["distribution"]) == 60
+    assert sum(len(row["criteria"]) for row in verdict["details"]["responses"]) == 60
 
 
 
-def test_agreement_baseline_and_distribution_warning(tmp_path):
+def test_agreement_and_teacher_baseline(tmp_path):
     selection = GradeStudentInput("S1", ["NQ001"])
     reference = reference_for(selection, [[2, 3, 3, 3, 4]] * 5)
     receipt = record_grades(RecordGradesInput(selection, [response(score=3)]), tmp_path)
@@ -82,20 +82,7 @@ def test_agreement_baseline_and_distribution_warning(tmp_path):
     assert details["agreement_score"] == 86.67
     assert details["mean_absolute_error"] == 0.4
     assert details["teacher_agreement_score"] == 73.33
-    assert not details["distribution_warning"]
     assert details["responses"][0]["total"] == 15
-
-    rows = [[4 if index == teacher else 3 for teacher in range(5)] for index in range(5)]
-    reference = reference_for(selection, rows)
-    # Each teacher has four 3s and one 4. This agent's total and all items still pass.
-    row = response()
-    grades = [replace(g, score=4 if g.criterion in (1, 2) else 2 if g.criterion == 3 else 3) for g in row.grades]
-    receipt = record_grades(RecordGradesInput(selection, [replace(row, grades=grades)]), tmp_path)
-    verdict = submit(selection, [receipt.receipt_id], reference, tmp_path)
-    assert verdict["valid"]
-    assert verdict["details"]["distribution_warning"]
-    assert [r["deviation"] for r in verdict["details"]["distribution"]] == [0, 1, -2, 1]
-
 
 
 def test_criterion_any_teacher_and_total_preserves_evaluator_columns(tmp_path):

@@ -11,9 +11,9 @@ Grade open-ended student responses with a rubric and compare the results with te
 | `record_grades` | Saves one to six responses per call and returns a receipt and totals. Each response needs five criterion scores from 1 to 4 with brief justifications. |
 | `pin_teacher_scores` | Supplies the five teachers' scores per criterion. NanoAgent calls it separately for the verifier. |
 
-The agent submits the receipts. The verifier checks the saved grades and exact question coverage before scoring. The result shows each response total out of 20. A criterion passes when its score is within one point of any of the five teachers. A total passes when it falls within the range of the five individual teachers’ totals. The distribution warning compares how often the agent and teachers used each score on the same student’s selected responses.
+The agent submits the receipts. The verifier checks the saved grades and exact question coverage before scoring. The result shows each response total out of 20. A criterion passes when its score is within one point of any of the five teachers. A total passes when it falls within the range of the five individual teachers’ totals.
 
-Agent agreement is `100 × (1 − mean absolute error / 3)`, with each criterion compared to all five teachers. The report also shows pairwise teacher agreement on those criteria. Criterion and total failures are reported separately from the agreement score.
+Agreement with teachers is `100 × (1 − mean absolute error / 3)`, with each criterion compared to all five teachers. The report also shows pairwise teacher agreement on those criteria. Criterion and total failures are reported separately from the agreement score.
 
 ### Tasks
 

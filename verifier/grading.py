@@ -125,22 +125,6 @@ def verify_output(tool, value, output, workspace):
     return result(problem is None, problem or "Valid grading tool output")
 
 
-def distribution(agent_scores, evaluator_scores):
-    rows = []
-    for score in SCORES:
-        count = agent_scores.count(score)
-        counts = [values.count(score) for values in evaluator_scores]
-        low, high = min(counts), max(counts)
-        rows.append({
-            "rubric_score": score,
-            "agent_count": count,
-            "teacher_min": low,
-            "teacher_max": high,
-            "deviation": count - min(max(count, low), high),
-        })
-    return rows
-
-
 def submission_grades(selection, output, reference, workspace):
     ids = output.receipt_ids
     requested = selected_questions(selection)
@@ -207,19 +191,19 @@ def verify_task(selection, output, reference, workspace):
         all_scores.extend(scores)
         all_teacher_rows.extend(teacher_rows)
 
-    distance = sum(abs(agent - teacher) for agent, row in zip(all_scores, all_teacher_rows, strict=True) for teacher in row)
+    distance = sum(
+        abs(score - teacher)
+        for score, row in zip(all_scores, all_teacher_rows, strict=True)
+        for teacher in row
+    )
     mean_error = distance / (5 * len(all_scores))
     teacher_distance = sum(abs(a - b) for row in all_teacher_rows for a, b in combinations(row, 2))
     teacher_error = teacher_distance / (10 * len(all_scores))
     agreement = 1 - mean_error / 3
-    counts = distribution(all_scores, list(zip(*all_teacher_rows, strict=True)))
-    warning = any(row["deviation"] for row in counts)
     valid = criterion_failures == total_failures == 0
     message = f"{selection.student_id} · {100 * agreement:.1f}/100 agreement across {len(reports)} responses"
     if not valid:
         message += f" · {criterion_failures} criterion and {total_failures} total checks failed"
-    if warning:
-        message += " · score distribution warning"
     return result(
         valid,
         message,
@@ -230,7 +214,5 @@ def verify_task(selection, output, reference, workspace):
         teacher_agreement_score=round(100 * (1 - teacher_error / 3), 2),
         criterion_failures=criterion_failures,
         total_failures=total_failures,
-        distribution=counts,
-        distribution_warning=warning,
         responses=reports,
     )

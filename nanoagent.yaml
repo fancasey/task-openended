@@ -1,7 +1,7 @@
 _ > nanoagent.plugin.v0001.ManifestConfig:
 id: open-ended-rubric-grading
 name: Open-Ended Rubric Grading
-version: 0.8.0
+version: 0.8.1
 status: ready
 spec: nanoagent.plugin/v0001
 
@@ -49,4 +49,4 @@ tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
       Record grades in batches of up to six responses, in question order, using record_grades. Send the original task
       input as selection in each call. Cover every selected question once and use the tool's computed totals.
       Submit an object with receipt_ids containing the receipt_id from each successful grading batch, once each.
-      Describe the result using the verifier's report when available. Keep the student grade separate from the agent agreement score.
+      Describe the result using the verifier's report when available. Keep the student grade separate from the agreement score with teachers.
