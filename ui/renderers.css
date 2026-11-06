@@ -1,0 +1,6 @@
+.grading-report {
+  display: grid;
+  gap: 8px;
+}
+
+.grading-report > p { margin: 0; }

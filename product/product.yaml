@@ -1,0 +1,11 @@
+_ > nanoagent.plugin.v0001.ProductConfig:
+tagline: "Grade one student's open-ended answers and compare the grades with five teachers"
+summary: "Select a student and optionally choose questions. The agent grades each response against five rubric criteria and explains its scores. The verifier checks the totals and measures how closely the grades agree with five teachers."
+highlights:
+  - "Question-specific rubrics with four levels for each criterion"
+  - "Teacher-agreement score out of 100 with a teacher-to-teacher baseline"
+  - "Separate criterion, total and score distribution checks"
+steps:
+  - "Ask to grade a student from S1 through S5, optionally on specific questions"
+  - "Review criterion scores, justifications, and response totals"
+  - "Compare the agent's grades with the teacher benchmarks"
