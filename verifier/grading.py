@@ -29,6 +29,14 @@ def selection_problem(value):
     return None
 
 
+def question_problem(value):
+    if problem := selection_problem(value):
+        return problem
+    if len(value.question_ids) != 1:
+        return "request exactly one question per call"
+    return None
+
+
 def selected_questions(value):
     return sorted(value.question_ids) or list(QUESTIONS)
 
@@ -36,8 +44,8 @@ def selected_questions(value):
 def record_problem(value):
     if problem := selection_problem(value.selection):
         return problem
-    if not 1 <= len(value.responses) <= 6:
-        return "record 1 to 6 responses per batch"
+    if len(value.responses) != 1:
+        return "record exactly one response per call"
     requested = selected_questions(value.selection)
     seen = set()
     for response in value.responses:
@@ -96,6 +104,8 @@ def read_receipt(workspace, receipt_id):
 def verify_input(tool, value):
     if tool == "record_grades":
         problem = record_problem(value)
+    elif tool == "get_grading_question":
+        problem = question_problem(value)
     elif tool == "list_grading_data":
         problem = None
     else:
@@ -115,8 +125,8 @@ def verify_output(tool, value, output, workspace):
             problem = f"could not read grading receipt: {error}"
     elif tool == "pin_teacher_scores":
         problem = reference_problem(value, output)
-    elif tool == "get_grading_batch":
-        if output.student_id != value.student_id or [q.question_id for q in output.questions] != selected_questions(value):
+    elif tool == "get_grading_question":
+        if question_problem(value) or output.student_id != value.student_id or [q.question_id for q in output.questions] != selected_questions(value):
             problem = "grading data must cover the selected student and questions"
         elif any([r.criterion for r in q.rubric] != sorted(CRITERIA) for q in output.questions):
             problem = "grading data must include all five rubric criteria"

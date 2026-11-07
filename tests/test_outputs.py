@@ -4,14 +4,14 @@ import pytest
 
 import verifier
 from contract import ListGradingInput, RecordGradesInput, ResponseTotal
-from plugin.grading import get_grading_batch, list_grading_data, record_grades
+from plugin.grading import get_grading_question, list_grading_data, record_grades
 
 
 @pytest.mark.parametrize(
     "change", ["student", "empty", "duplicate", "wrong-question", "missing-rubric", "rubric-order"]
 )
 def test_batch_output_rejects_wrong_scope_or_rubric(change, selection, tmp_path):
-    batch = get_grading_batch(selection, tmp_path)
+    batch = get_grading_question(selection, tmp_path)
     question = batch.questions[0]
     if change == "student":
         batch = replace(batch, student_id="S2")
@@ -24,7 +24,7 @@ def test_batch_output_rejects_wrong_scope_or_rubric(change, selection, tmp_path)
             "rubric-order": [replace(question, rubric=question.rubric[::-1])],
         }
         batch = replace(batch, questions=questions[change])
-    assert not verifier.verify_output("get_grading_batch", selection, batch, tmp_path)["valid"]
+    assert not verifier.verify_output("get_grading_question", selection, batch, tmp_path)["valid"]
 
 
 @pytest.mark.parametrize("change", ["student", "missing", "duplicate", "order"])

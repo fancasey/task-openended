@@ -37,7 +37,7 @@ def reference_for(selection, rows):
 
 
 @pytest.mark.parametrize("responses", [
-    [], [response("NQ002")], [response(), response()], [response(score=0)], [response(score=5)],
+    [], [response(), response("NQ002")], [response("NQ002")], [response(), response()], [response(score=0)], [response(score=5)],
     [replace(response(), grades=response().grades[1:])],
     [replace(response(), grades=response().grades[:4] + [response().grades[0]])],
     [replace(response(), grades=[CriterionGrade(1, 2, "  "), *response().grades[1:]])],
@@ -53,15 +53,15 @@ def test_rejects_invalid_record_batch(responses, tmp_path):
 
 
 
-def test_full_student_coverage_across_two_batches(tmp_path):
+def test_full_student_coverage_one_question_at_a_time(tmp_path):
     selection = GradeStudentInput("S5", [])
     reference = pin_teacher_scores(selection, tmp_path)
     assert [r.question_id for r in reference.responses] == list(QUESTIONS)
     ids = []
-    for questions in (QUESTIONS[:6], QUESTIONS[6:]):
-        batch = RecordGradesInput(selection, [response(q) for q in questions])
+    for question in QUESTIONS:
+        batch = RecordGradesInput(selection, [response(question)])
         receipt = record_grades(batch, tmp_path)
-        assert [row.total for row in receipt.totals] == [15] * 6
+        assert [row.total for row in receipt.totals] == [15]
         assert verifier.verify_output("record_grades", batch, receipt, tmp_path)["valid"]
         ids.append(receipt.receipt_id)
     assert "missing grades" in submit(selection, ids[:1], reference, tmp_path)["message"]

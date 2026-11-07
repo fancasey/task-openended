@@ -9,7 +9,7 @@ from slimconfig import Output
 
 class Tool(Enum):
     LIST_GRADING_DATA = "list_grading_data"
-    GET_GRADING_BATCH = "get_grading_batch"
+    GET_GRADING_QUESTION = "get_grading_question"
     RECORD_GRADES = "record_grades"
     PIN_TEACHER_SCORES = "pin_teacher_scores"
 
@@ -23,6 +23,11 @@ class Task(Enum):
 class GradeStudentInput(Output):
     student_id: Annotated[str, "Exactly one student ID, S1 through S5"]
     question_ids: Annotated[list[str], "Distinct question IDs NQ001 through NQ012, or [] for all"]
+
+
+@dataclass
+class GradingQuestionInput(GradeStudentInput):
+    question_ids: Annotated[list[str], "Exactly one question ID NQ001 through NQ012; empty or multiple IDs are rejected"]
 
 
 @dataclass
@@ -62,7 +67,7 @@ class GradingQuestion(Output):
 
 
 @dataclass
-class GradingBatchOutput(Output):
+class GradingQuestionOutput(Output):
     student_id: str
     questions: list[GradingQuestion]
 
@@ -83,7 +88,7 @@ class ResponseGrade(Output):
 @dataclass
 class RecordGradesInput(Output):
     selection: GradeStudentInput
-    responses: Annotated[list[ResponseGrade], "Grades for 1 to 6 distinct selected responses"]
+    responses: Annotated[list[ResponseGrade], "Grades for exactly one selected response"]
 
 
 @dataclass
@@ -125,7 +130,7 @@ class TeacherReferenceOutput(Output):
 
 TOOLS = {
     Tool.LIST_GRADING_DATA: (ListGradingInput, GradingCatalogOutput),
-    Tool.GET_GRADING_BATCH: (GradeStudentInput, GradingBatchOutput),
+    Tool.GET_GRADING_QUESTION: (GradingQuestionInput, GradingQuestionOutput),
     Tool.RECORD_GRADES: (RecordGradesInput, GradeReceiptOutput),
     Tool.PIN_TEACHER_SCORES: (GradeStudentInput, TeacherReferenceOutput),
 }

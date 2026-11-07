@@ -21,7 +21,7 @@ WORKSPACE_ENV = "NANOAGENT_WORKSPACE"
 # Each tool's implementation: (its input, the workspace) -> its output, as contract.TOOLS types them.
 IMPLEMENTATIONS = {
     Tool.LIST_GRADING_DATA: grading.list_grading_data,
-    Tool.GET_GRADING_BATCH: grading.get_grading_batch,
+    Tool.GET_GRADING_QUESTION: grading.get_grading_question,
     Tool.RECORD_GRADES: grading.record_grades,
     Tool.PIN_TEACHER_SCORES: grading.pin_teacher_scores,
 }

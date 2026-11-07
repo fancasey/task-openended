@@ -5,7 +5,7 @@ import csv
 import pytest
 
 from contract import GradeStudentInput
-from plugin.grading import get_grading_batch, pin_teacher_scores
+from plugin.grading import get_grading_question, pin_teacher_scores
 from plugin.grading_data import WORKBOOK, workbook_data
 
 with WORKBOOK.with_name("Input file for NLP of 12 question scores.csv").open(
@@ -43,7 +43,7 @@ def test_workbook_record_matches_companion_csv(row):
 @pytest.mark.parametrize("question", [f"NQ{i:03}" for i in range(1, 13)])
 def test_tools_serve_the_requested_response_only(student, question, tmp_path):
     selection = GradeStudentInput(student, [question])
-    batch = get_grading_batch(selection, tmp_path)
+    batch = get_grading_question(selection, tmp_path)
     reference = pin_teacher_scores(selection, tmp_path)
     assert batch.student_id == reference.student_id == student
     assert [q.question_id for q in batch.questions] == [question]

@@ -7,11 +7,11 @@ Grade open-ended student responses with a rubric and compare the results with te
 | Tool | Purpose |
 | --- | --- |
 | `list_grading_data` | Lists student IDs and question prompts. |
-| `get_grading_batch` | Returns the selected student's responses, prompts, model answers, and rubrics. |
-| `record_grades` | Saves one to six responses per call and returns a receipt and totals. Each response needs five criterion scores from 1 to 4 with brief justifications. |
+| `get_grading_question` | Returns exactly one student's answer with its prompt, model answer, and rubric. `question_ids` must contain exactly one ID; empty and multi-question lists are rejected. |
+| `record_grades` | Saves exactly one response per call and returns a receipt and totals. Each response needs five criterion scores from 1 to 4 with brief justifications. |
 | `pin_teacher_scores` | Supplies the five teachers' scores per criterion. NanoAgent calls it separately for the verifier. |
 
-The agent submits the receipts. The verifier checks the saved grades and exact question coverage before scoring. The result shows each response total out of 20. A criterion passes when its score is within one point of any of the five teachers. A total passes when it falls within the range of the five individual teachers’ totals.
+The agent fetches, grades, and records one question before fetching the next, in question order. Each `record_grades` call keeps the original task input as `selection` and includes exactly one response. The agent submits one receipt per selected question. The verifier checks the saved grades and exact question coverage before scoring. The result shows each response total out of 20. A criterion passes when its score is within one point of any of the five teachers. A total passes when it falls within the range of the five individual teachers’ totals.
 
 Agreement with teachers is `100 × (1 − mean absolute error / 3)`, with each criterion compared to all five teachers. The report also shows pairwise teacher agreement on those criteria. Criterion and total failures are reported separately from the agreement score.
 
@@ -22,7 +22,7 @@ Agreement with teachers is `100 × (1 − mean absolute error / 3)`, with each c
 | `list-grading-data` | Lists the available student IDs and question prompts. | “List the students and questions.” |
 | `grade-student` | Grades all or selected responses for one student from S1 through S5. | “Grade S2” or “Grade S2 on NQ003 and NQ004.” |
 
-The structured `grade-student` input is `{"student_id":"S2","question_ids":[]}`. An empty question list selects all questions. Use distinct IDs from `NQ001` through `NQ012` to select specific questions.
+The structured `grade-student` input is `{"student_id":"S2","question_ids":[]}`. An empty question list selects all questions for the task; the agent still fetches and records each question separately. Use distinct IDs from `NQ001` through `NQ012` to select specific questions.
 
 ## Layout
 
