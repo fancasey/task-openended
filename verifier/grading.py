@@ -22,23 +22,13 @@ RECEIPT_FOLDER = "grading-receipts"
 def selection_problem(value):
     if value.student_id not in STUDENTS:
         return "student_id must be one of S1 through S5"
-    if not isinstance(value.question_ids, list) or any(q not in QUESTIONS for q in value.question_ids):
-        return "question_ids must contain only NQ001 through NQ012"
-    if len(value.question_ids) != len(set(value.question_ids)):
-        return "question_ids must be distinct"
-    return None
-
-
-def question_problem(value):
-    if problem := selection_problem(value):
-        return problem
-    if len(value.question_ids) != 1:
-        return "request exactly one question per call"
+    if not isinstance(value.question_id, str) or value.question_id not in QUESTIONS:
+        return "question_id must be exactly one ID from NQ001 through NQ012"
     return None
 
 
 def selected_questions(value):
-    return sorted(value.question_ids) or list(QUESTIONS)
+    return [value.question_id]
 
 
 def record_problem(value):
@@ -69,7 +59,7 @@ def reference_problem(selection, reference):
     if reference is None or reference.student_id != selection.student_id:
         return "missing teacher reference for the selected student"
     if sorted(row.question_id for row in reference.responses) != selected_questions(selection):
-        return "teacher reference must cover each selected question once"
+        return "teacher reference must cover exactly the selected question"
     for response in reference.responses:
         if len(response.criteria) != 5 or {c.criterion for c in response.criteria} != CRITERIA:
             return f"{response.question_id} has an incomplete teacher rubric"
@@ -104,8 +94,6 @@ def read_receipt(workspace, receipt_id):
 def verify_input(tool, value):
     if tool == "record_grades":
         problem = record_problem(value)
-    elif tool == "get_grading_question":
-        problem = question_problem(value)
     elif tool == "list_grading_data":
         problem = None
     else:
@@ -126,8 +114,8 @@ def verify_output(tool, value, output, workspace):
     elif tool == "pin_teacher_scores":
         problem = reference_problem(value, output)
     elif tool == "get_grading_question":
-        if question_problem(value) or output.student_id != value.student_id or [q.question_id for q in output.questions] != selected_questions(value):
-            problem = "grading data must cover the selected student and questions"
+        if selection_problem(value) or output.student_id != value.student_id or [q.question_id for q in output.questions] != selected_questions(value):
+            problem = "grading data must cover exactly the selected student and question"
         elif any([r.criterion for r in q.rubric] != sorted(CRITERIA) for q in output.questions):
             problem = "grading data must include all five rubric criteria"
     elif output.student_ids != list(STUDENTS) or [q.question_id for q in output.questions] != list(QUESTIONS):
@@ -138,8 +126,8 @@ def verify_output(tool, value, output, workspace):
 def submission_grades(selection, output, reference, workspace):
     ids = output.receipt_ids
     requested = selected_questions(selection)
-    if not 1 <= len(ids) <= len(requested) or len(set(ids)) != len(ids):
-        raise ValueError("submit distinct receipts covering the selected questions")
+    if len(ids) != 1:
+        raise ValueError("submit exactly one receipt for the selected question")
     responses = {}
     for receipt_id in ids:
         if receipt_id in reference.prior_receipt_ids:
@@ -211,7 +199,7 @@ def verify_task(selection, output, reference, workspace):
     teacher_error = teacher_distance / (10 * len(all_scores))
     agreement = 1 - mean_error / 3
     valid = criterion_failures == total_failures == 0
-    message = f"{selection.student_id} · {100 * agreement:.1f}/100 agreement across {len(reports)} responses"
+    message = f"{selection.student_id} · {100 * agreement:.1f}/100 agreement on {selection.question_id}"
     if not valid:
         message += f" · {criterion_failures} criterion and {total_failures} total checks failed"
     return result(

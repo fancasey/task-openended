@@ -44,7 +44,7 @@ def reference_for(selection, rows):
     [response(f"NQ{i:03}") for i in range(1, 8)],
 ])
 def test_rejects_invalid_record_batch(responses, tmp_path):
-    selection = GradeStudentInput("S1", ["NQ001"])
+    selection = GradeStudentInput("S1", "NQ001")
     batch = RecordGradesInput(selection, responses)
     assert not verifier.verify_input("record_grades", batch)["valid"]
     with pytest.raises(ValueError):
@@ -53,26 +53,22 @@ def test_rejects_invalid_record_batch(responses, tmp_path):
 
 
 
-def test_full_student_coverage_one_question_at_a_time(tmp_path):
-    selection = GradeStudentInput("S5", [])
+@pytest.mark.parametrize("question", QUESTIONS)
+def test_single_question_task_coverage(question, tmp_path):
+    selection = GradeStudentInput("S5", question)
     reference = pin_teacher_scores(selection, tmp_path)
-    assert [r.question_id for r in reference.responses] == list(QUESTIONS)
-    ids = []
-    for question in QUESTIONS:
-        batch = RecordGradesInput(selection, [response(question)])
-        receipt = record_grades(batch, tmp_path)
-        assert [row.total for row in receipt.totals] == [15]
-        assert verifier.verify_output("record_grades", batch, receipt, tmp_path)["valid"]
-        ids.append(receipt.receipt_id)
-    assert "missing grades" in submit(selection, ids[:1], reference, tmp_path)["message"]
-    verdict = submit(selection, ids[::-1], reference, tmp_path)
-    assert len(verdict["details"]["responses"]) == 12
-    assert sum(len(row["criteria"]) for row in verdict["details"]["responses"]) == 60
-
+    assert [r.question_id for r in reference.responses] == [question]
+    batch = RecordGradesInput(selection, [response(question)])
+    receipt = record_grades(batch, tmp_path)
+    assert [row.total for row in receipt.totals] == [15]
+    assert verifier.verify_output("record_grades", batch, receipt, tmp_path)["valid"]
+    verdict = submit(selection, [receipt.receipt_id], reference, tmp_path)
+    assert len(verdict["details"]["responses"]) == 1
+    assert len(verdict["details"]["responses"][0]["criteria"]) == 5
 
 
 def test_agreement_and_teacher_baseline(tmp_path):
-    selection = GradeStudentInput("S1", ["NQ001"])
+    selection = GradeStudentInput("S1", "NQ001")
     reference = reference_for(selection, [[2, 3, 3, 3, 4]] * 5)
     receipt = record_grades(RecordGradesInput(selection, [response(score=3)]), tmp_path)
     verdict = submit(selection, [receipt.receipt_id], reference, tmp_path)
@@ -86,7 +82,7 @@ def test_agreement_and_teacher_baseline(tmp_path):
 
 
 def test_criterion_any_teacher_and_total_preserves_evaluator_columns(tmp_path):
-    selection = GradeStudentInput("S1", ["NQ001"])
+    selection = GradeStudentInput("S1", "NQ001")
     reference = reference_for(selection, [[4, 1, 1, 1, 1], *([[1, 4, 1, 1, 1]] * 4)])
     receipt = record_grades(RecordGradesInput(selection, [response(score=4)]), tmp_path)
     verdict = submit(selection, [receipt.receipt_id], reference, tmp_path)
@@ -105,15 +101,17 @@ def test_criterion_any_teacher_and_total_preserves_evaluator_columns(tmp_path):
 
 
 def test_invalid_receipts_and_pinned_scope(tmp_path):
-    selection = GradeStudentInput("S1", ["NQ001", "NQ002"])
+    selection = GradeStudentInput("S1", "NQ001")
     reference = pin_teacher_scores(selection, tmp_path)
     batch = RecordGradesInput(selection, [response()])
     first = record_grades(batch, tmp_path).receipt_id
     second = record_grades(batch, tmp_path).receipt_id
-    wrong_student = record_grades(RecordGradesInput(GradeStudentInput("S2", selection.question_ids), [response()]), tmp_path)
+    wrong_student = record_grades(RecordGradesInput(GradeStudentInput("S2", selection.question_id), [response()]), tmp_path)
+    wrong_question = record_grades(RecordGradesInput(GradeStudentInput("S1", "NQ002"), [response("NQ002")]), tmp_path)
     for ids, error in [
-        ([], "distinct receipts"), ([first, first], "distinct receipts"),
-        ([first, second], "duplicate grade"), ([wrong_student.receipt_id], "different selection"),
+        ([], "exactly one receipt"), ([first, first], "exactly one receipt"),
+        ([first, second], "exactly one receipt"), ([wrong_student.receipt_id], "different selection"),
+        ([wrong_question.receipt_id], "different selection"),
         (["../anything"], "invalid grading receipt ID"), (["0" * 64], "invalid submission"),
     ]:
         verdict = submit(selection, ids, reference, tmp_path)

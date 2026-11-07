@@ -42,7 +42,7 @@ def test_workbook_record_matches_companion_csv(row):
 @pytest.mark.parametrize("student", [f"S{i}" for i in range(1, 6)])
 @pytest.mark.parametrize("question", [f"NQ{i:03}" for i in range(1, 13)])
 def test_tools_serve_the_requested_response_only(student, question, tmp_path):
-    selection = GradeStudentInput(student, [question])
+    selection = GradeStudentInput(student, question)
     batch = get_grading_question(selection, tmp_path)
     reference = pin_teacher_scores(selection, tmp_path)
     assert batch.student_id == reference.student_id == student

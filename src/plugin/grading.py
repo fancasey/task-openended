@@ -7,8 +7,8 @@ from uuid import uuid4
 
 from contract import (
     GradeReceiptOutput,
-    GradingQuestionOutput,
     GradingCatalogOutput,
+    GradingQuestionOutput,
     QuestionSummary,
     ResponseTotal,
     TeacherReferenceOutput,
@@ -19,7 +19,6 @@ from verifier.grading import (
     STUDENTS,
     receipt_directory,
     record_problem,
-    question_problem,
     selected_questions,
     selection_problem,
 )
@@ -36,7 +35,7 @@ def list_grading_data(_value, _workspace):
 
 
 def get_grading_question(selection, _workspace):
-    if problem := question_problem(selection):
+    if problem := selection_problem(selection):
         raise ValueError(problem)
     questions, _ = workbook_data()
     return GradingQuestionOutput(

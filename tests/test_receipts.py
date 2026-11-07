@@ -36,7 +36,7 @@ def test_changed_receipt_is_rejected(contents, selection, make_response, make_re
         {},
         {"batch": {}},
         {"batch": {"selection": {}}},
-        {"batch": {"selection": {"student_id": "S1", "question_ids": ["NQ001"]}, "responses": []}},
+        {"batch": {"selection": {"student_id": "S1", "question_id": "NQ001"}, "responses": []}},
     ],
 )
 def test_rehashed_malformed_receipt_still_fails(payload, selection, make_reference, tmp_path):

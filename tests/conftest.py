@@ -12,7 +12,7 @@ from contract import (
 
 @pytest.fixture
 def selection():
-    return GradeStudentInput("S1", ["NQ001"])
+    return GradeStudentInput("S1", "NQ001")
 
 
 @pytest.fixture

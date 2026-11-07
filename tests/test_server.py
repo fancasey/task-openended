@@ -23,12 +23,12 @@ def test_stdio_structured_tools(tmp_path):
             assert set(tools) == {"list_grading_data", "get_grading_question", "record_grades", "pin_teacher_scores"}
             schema = tools["get_grading_question"].inputSchema
             assert schema["properties"]["student_id"]["type"] == "string"
-            assert schema["properties"]["question_ids"]["type"] == "array"
+            assert schema["properties"]["question_id"]["type"] == "string"
             assert not schema["additionalProperties"]
             catalog = await session.call_tool("list_grading_data", {})
             assert not catalog.isError
             assert len(catalog.structuredContent["questions"]) == 12
-            selection = {"student_id": "S1", "question_ids": ["NQ001"]}
+            selection = {"student_id": "S1", "question_id": "NQ001"}
             batch = await session.call_tool("get_grading_question", selection)
             assert not batch.isError
             question = batch.structuredContent["questions"][0]
@@ -36,9 +36,12 @@ def test_stdio_structured_tools(tmp_path):
             assert set(question["rubric"][0]) == {"criterion", "name", "level_1", "level_2", "level_3", "level_4"}
             assert (await session.call_tool("get_grading_question", {**selection, "student_id": ["S1", "S2"]})).isError
             assert (await session.call_tool("get_grading_question", {**selection, "student_id": "S6"})).isError
-            for question_ids in ([], ["NQ001", "NQ002"]):
+            for question_ids in ([], ["NQ001"], ["NQ001", "NQ002"]):
                 rejected = await session.call_tool("get_grading_question", {**selection, "question_ids": question_ids})
                 assert rejected.isError
+            for question_id in ([], ["NQ001", "NQ002"], "", "all", "NQ001,NQ002"):
+                for name in ("get_grading_question", "pin_teacher_scores"):
+                    assert (await session.call_tool(name, {**selection, "question_id": question_id})).isError
             receipt = await session.call_tool(
                 "record_grades",
                 {

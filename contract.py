@@ -22,12 +22,7 @@ class Task(Enum):
 @dataclass
 class GradeStudentInput(Output):
     student_id: Annotated[str, "Exactly one student ID, S1 through S5"]
-    question_ids: Annotated[list[str], "Distinct question IDs NQ001 through NQ012, or [] for all"]
-
-
-@dataclass
-class GradingQuestionInput(GradeStudentInput):
-    question_ids: Annotated[list[str], "Exactly one question ID NQ001 through NQ012; empty or multiple IDs are rejected"]
+    question_id: Annotated[str, "Exactly one question ID, NQ001 through NQ012"]
 
 
 @dataclass
@@ -105,7 +100,7 @@ class GradeReceiptOutput(Output):
 
 @dataclass
 class GradeSubmissionOutput(Output):
-    receipt_ids: Annotated[list[str], "Copy each receipt_id returned by record_grades exactly once"]
+    receipt_ids: Annotated[list[str], "Exactly one receipt_id returned by record_grades"]
 
 
 @dataclass
@@ -130,7 +125,7 @@ class TeacherReferenceOutput(Output):
 
 TOOLS = {
     Tool.LIST_GRADING_DATA: (ListGradingInput, GradingCatalogOutput),
-    Tool.GET_GRADING_QUESTION: (GradingQuestionInput, GradingQuestionOutput),
+    Tool.GET_GRADING_QUESTION: (GradeStudentInput, GradingQuestionOutput),
     Tool.RECORD_GRADES: (RecordGradesInput, GradeReceiptOutput),
     Tool.PIN_TEACHER_SCORES: (GradeStudentInput, TeacherReferenceOutput),
 }
