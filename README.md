@@ -29,7 +29,7 @@ The structured `grade-student` input is `{"student_id":"S2","question_ids":[]}`.
 - `nanoagent.yaml` declares the runtime, tools, and tasks. `contract.py` defines their inputs and outputs.
 - `src/plugin/` contains the tool server, grading tools, and bundled dataset.
 - `verifier/` checks tool inputs and outputs, receipt integrity, coverage, and agreement with teacher scores.
-- `tests/test_grading.py` covers schemas, workbook data, and tool calls. `tests/test_verifier.py` covers grading validation, receipts, coverage, and scoring.
+- `tests/` separates schema checks, dataset checks, scoring, teacher references, receipt integrity, tool output validation, and server integration. Each of the 300 source rubric records is reported separately, alongside all 60 student/question selections. Scoring tests compare results with independent arithmetic; receipt tests cover changed files, malformed payloads, prior-task receipts, and symlink escapes.
 
 ### Dataset citation
 

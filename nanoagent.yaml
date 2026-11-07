@@ -1,7 +1,7 @@
 _ > nanoagent.plugin.v0001.ManifestConfig:
 id: open-ended-rubric-grading
 name: Open-Ended Rubric Grading
-version: 0.8.1
+version: 0.8.2
 status: ready
 spec: nanoagent.plugin/v0001
 
